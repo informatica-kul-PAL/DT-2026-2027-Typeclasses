@@ -1,0 +1,1365 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+ 
+% ---------------------------------------------------------------- thema
+\usetheme[
+  progressbar=frametitle,
+  numbering=fraction,
+  sectionpage=progressbar,
+  block=fill
+]{metropolis}
+ 
+\usepackage[T1]{fontenc}
+\IfFileExists{dutch.ldf}{%
+  \usepackage[dutch]{babel}%
+  \AtBeginDocument{\shorthandoff{"}}
+}{}
+ 
+\IfFileExists{plex-sans.sty}{\usepackage[sfdefault]{plex-sans}}{}
+\IfFileExists{plex-mono.sty}{\usepackage[scale=0.95]{plex-mono}}{}
+ 
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{tikz-cd}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{amssymb}
+ 
+\definecolor{kulblauw}{HTML}{1D8DB0}
+\definecolor{kuldonker}{HTML}{00407A}
+ 
+\setbeamercolor{frametitle}{bg=kuldonker, fg=white}
+\setbeamercolor{progress bar}{fg=kulblauw, bg=kulblauw!20}
+\setbeamercolor{alerted text}{fg=kulblauw}
+\setbeamercolor{standout}{bg=kuldonker, fg=white}
+\setbeamercolor{block title}{bg=kulblauw!20, fg=kuldonker}
+\setbeamercolor{block body}{bg=kulblauw!6}
+\setbeamercolor{block title alerted}{bg=orange!25, fg=black}
+\setbeamercolor{block body alerted}{bg=orange!8}
+ 
+% ---------------------------------------------------------------- code
+\definecolor{codebg}{HTML}{EEF4F8}
+\definecolor{codecomment}{HTML}{6A7A86}
+\definecolor{codestring}{HTML}{2E7D32}
+\definecolor{codetype}{HTML}{C2185B}   % Int, Char, ...
+\definecolor{codefunc}{HTML}{4A6FD1}   % replicate, swap, ...
+\definecolor{codeop}{HTML}{E5395C}     % :: -> => <-
+\definecolor{codenum}{HTML}{D9730D}    % 3, 10, ...
+\definecolor{codekw}{HTML}{8E44AD}     % where, let, ...
+ 
+\newcommand{\hsop}[1]{{\color{codeop}#1}}
+\newcommand{\hsnum}[1]{{\color{codenum}#1}}
+ 
+\lstdefinestyle{hs}{
+  language=Haskell,
+  sensitive=true,
+  % keywords
+  keywords={where,let,in,import,if,then,else,case,of,data,type,module,
+            newtype,class,instance,deriving,do},
+  keywordstyle=\color{codekw}\bfseries,
+  % types en typeclasses
+  keywords=[2]{Int,Char,String,Bool,Integer,Double,Float,Maybe,Either,
+               Ord,Eq,Show,Num,True,False,Just,Nothing,Left,Right,IO,
+               Functor,Applicative,Monad,Semigroup,Monoid,Foldable,
+               Traversable,Bounded,Sum,Product,Max,Min,Any,All,First,
+               NonEmpty,Identity,Const,State,Ordering},
+  keywordstyle=[2]\color{codetype},
+  % Prelude / user-defined functions
+  keywords=[3]{replicate,flip,map,filter,length,zip,unzip,zipWith,span,
+               break,sort,sortOn,curry,uncurry,swap,optellen,fst,snd,head,
+               tail,sum,product,lines,words,unwords,read,show,foldr,foldl,
+               reverse,concat,concatMap,take,drop,takeWhile,dropWhile,
+               elem,all,any,maximum,minimum,abs,id,const,not,
+               fmap,pure,traverse,sequenceA,foldMap,mempty,mconcat,sconcat,
+               mapM,mapM_,join,return,get,put,modify,runState,evalState,
+               execState,getSum,getProduct,getMax,getAny,liftA2,toList,
+               null,even,div,putStrLn,getLine,readFile,maybeToList,
+               liftM,ap,fold,unit,pair},
+  keywordstyle=[3]\color{codefunc},
+  basicstyle=\ttfamily\footnotesize,
+  commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestring},
+  backgroundcolor=\color{codebg},
+  columns=fullflexible, keepspaces=true,
+  showstringspaces=false, upquote=true,
+  xleftmargin=6pt, xrightmargin=6pt,
+  framexleftmargin=6pt, framexrightmargin=6pt,
+  framextopmargin=3pt, framexbottommargin=3pt,
+  frame=single, rulecolor=\color{codebg},
+  aboveskip=5pt, belowskip=5pt,
+  escapeinside={<@}{@>},
+  literate=
+    {>=>}{{\hsop{>=>}}}3
+    {>>=}{{\hsop{>\kern0pt>=}}}3
+    {=<<}{{\hsop{=<\kern0pt<}}}3
+    {<\$>}{{\hsop{<\$>}}}3
+    {<*>}{{\hsop{<*>}}}3
+    {<>}{{\hsop{<>}}}2
+    {->}{{\hsop{$\rightarrow$}}}2
+    {<-}{{\hsop{$\leftarrow$}}}2
+    {=>}{{\hsop{$\Rightarrow$}}}2
+    {::}{{\hsop{::}}}2
+    {==}{{\hsop{==}}}2
+    {0}{{\hsnum{0}}}1 {1}{{\hsnum{1}}}1 {2}{{\hsnum{2}}}1
+    {3}{{\hsnum{3}}}1 {4}{{\hsnum{4}}}1 {5}{{\hsnum{5}}}1
+    {6}{{\hsnum{6}}}1 {7}{{\hsnum{7}}}1 {8}{{\hsnum{8}}}1
+    {9}{{\hsnum{9}}}1
+    {ë}{{\"e}}1 {é}{{\'e}}1 {è}{{\`e}}1 {ï}{{\"i}}1,
+}
+\lstset{style=hs}
+ 
+% inline code: same colors, plain text in dark blue
+\lstdefinestyle{hsinline}{
+  basicstyle=\ttfamily\color{kuldonker},
+}
+\newcommand{\hs}{\lstinline[style=hsinline]}
+% voor code in argumenten van andere commando's (titels, tabellen, ...)
+\newcommand{\code}[1]{{\ttfamily\color{kuldonker}#1}}
+ 
+% antwoord dat pas op een latere overlay verschijnt (binnen listings)
+\newcommand{\ans}[2]{\uncover<#1->{\color{codecomment}\itshape #2}}
+ 
+% ---------------------------------------------------------------- tikz
+\tikzset{
+  obj/.style={font=\small},
+  box/.style={draw=kuldonker, fill=kulblauw!10, rounded corners=2pt,
+              inner sep=4pt, font=\small\ttfamily, text=kuldonker,
+              minimum width=2.4cm},
+  pow/.style={-{Stealth[length=5pt]}, thick, kuldonker},
+}
+\tikzcdset{arrow style=tikz, diagrams={>={Stealth[length=5pt]}}}
+ 
+% ---------------------------------------------------------------- titel
+\title{Sessie II: Haskell Type-classes}
+\subtitle{PAL-sessie Declaratieve Talen}
+\author{Yarne Ramakers, Yendric Van Roey}
+\institute{KU Leuven}
+\date{\today}
+ 
+\begin{document}
+ 
+\maketitle
+
+\begin{frame}[standout]
+  Zijn er vragen vanuit de oefenzittingen?
+\end{frame}
+
+\begin{frame}{Planning voor vandaag}
+  \begin{enumerate}
+    \item \textbf{Wat zijn typeclasses?}
+    \item \textbf{Nuttige typeclasses}
+    \begin{itemize}
+      \item \textbf{Semigroepen en Monoiden}
+      \item \textbf{Functoren}
+      \item \textbf{Applicatives}
+      \item \textbf{Foldable en Traversable}
+      \item \textbf{Monad}
+    \end{itemize}
+    \item \textbf{Opdrachten}
+  \end{enumerate}
+\end{frame}
+
+\section{Wat zijn typeclasses}
+
+\begin{frame}[fragile]{Generics}
+  Je wilt een functie \hs{show} die elk type omzet naar een \hs{String}:
+\begin{lstlisting}
+showInt  :: Int  -> String
+showBool :: Bool -> String      -- en voor [Bool]? [[Int]]? ...
+\end{lstlisting}
+  \pause
+  Kan het met een typevariabele? \hs{show :: a -> String}
+  \pause
+ 
+  Nee! Een functie die voor \alert{elke} \hs{a} werkt, weet niets over \hs{a}.
+  Ze kan niet in de waarde kijken en moet altijd hetzelfde teruggeven.
+  \pause
+  \begin{itemize}
+    \item \textbf{Parametrisch polymorfisme}: één implementatie voor alle types, bv.\ \hs{length}
+    \item \textbf{Ad-hoc polymorfisme}: één naam, een \alert{eigen} implementatie per type\\
+      $\Rightarrow$ \textbf{typeclasses}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Wat is een typeclass?}
+  \begin{block}{Definitie}
+    Een \textbf{typeclass} is een verzameling functies (met bijhorende
+    \alert{wetten}) die een type kan implementeren.
+    Een type dat dat doet is een \textbf{instantie} van die klasse.
+  \end{block}
+  \pause
+  Gelijkaardig aan interfaces uit OGP:
+  \begin{columns}[T]
+    \column{.5\textwidth}
+\begin{lstlisting}[language=Java,keywords={public,interface,boolean},keywords={[2]Object},keywords={[3]equals}]
+public interface Equals {
+    public boolean equals(Object other);
+}
+\end{lstlisting}
+    \column{.45\textwidth}
+\begin{lstlisting}
+class Eq a where
+  (==) :: a -> a -> Bool
+  (/=) :: a -> a -> Bool
+\end{lstlisting}
+  \end{columns}
+  \pause
+  \vspace{4pt}
+  Maar sterker:
+  \begin{itemize}
+    \item je kan een instantie \alert{achteraf} toevoegen, los van de definitie van het type
+    \item een klasse kan gaan over \alert{typeconstructors} zoals \hs{Maybe} of \hs{[]} (zie verder)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Een instantie schrijven}
+  \begin{columns}[T]
+    \column{.48\textwidth}
+\begin{lstlisting}
+class Eq a where
+  (==), (/=) :: a -> a -> Bool
+  -- standaardimplementaties
+  x /= y = not (x == y)
+  x == y = not (x /= y)
+  {-# MINIMAL (==) | (/=) #-}
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+data Color = Red | Green | Blue
+ 
+instance Eq Color where
+  Red   == Red   = True
+  Green == Green = True
+  Blue  == Blue  = True
+  _     == _     = False
+\end{lstlisting}
+  \end{columns}
+  \pause
+  \vspace{6pt}
+  \hs{MINIMAL}: je moet \hs{(==)} \alert{of} \hs{(/=)} implementeren, de andere krijg je gratis.
+  \pause
+ 
+  \vspace{6pt}
+  Voor de standaardklassen kan de compiler het ook voor jou doen:
+\begin{lstlisting}
+data Color = Red | Green | Blue
+  deriving (Show, Eq, Ord)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Constraints}
+  Een functie kan eisen dat een type tot een klasse behoort:
+\begin{lstlisting}
+elem :: Eq a => a -> [a] -> Bool    -- voor elke a waarvoor Eq a bestaat
+elem _ []       = False
+elem x (y : ys) = x == y || elem x ys
+\end{lstlisting}
+  \pause
+  Constraints kom je ook tegen bij klassen en instanties:
+\begin{lstlisting}
+class Eq a => Ord a where           -- elk Ord type is ook Eq (superklasse)
+  compare :: a -> a -> Ordering
+ 
+instance Eq a => Eq (Maybe a) where -- Maybe a is Eq als a Eq is
+  Nothing == Nothing = True
+  Just x  == Just y  = x == y
+  _       == _       = False
+\end{lstlisting}
+\end{frame}
+ 
+\begin{frame}[fragile]{Een typeclass is een contract}
+  De compiler controleert de \alert{types}, maar niet de \alert{wetten}.
+  Die zijn een belofte van wie de instantie schrijft.
+  \pause
+ 
+  \vspace{6pt}
+  Voorbeeld: \hs{(==)} hoort een equivalentierelatie te zijn:
+  \[
+    \underbrace{\text{\code{x == x}}}_{\text{reflexief}}
+    \qquad
+    \underbrace{\text{\code{x == y}} \Rightarrow \text{\code{y == x}}}_{\text{symmetrisch}}
+    \qquad
+    \underbrace{\text{\code{x == y}} \land \text{\code{y == z}} \Rightarrow \text{\code{x == z}}}_{\text{transitief}}
+  \]
+  \pause
+  Ook de standard library breekt dit soms:
+\begin{lstlisting}
+ghci> let nan = 0 / 0 :: Double
+ghci> nan == nan
+False                                -- niet reflexief!
+\end{lstlisting}
+  \pause
+  Code die op de wetten rekent (bv.\ \hs{elem nan [nan]}) gedraagt zich dan raar.
+\end{frame}
+
+\begin{frame}[fragile]{Kinds: de types van types}
+  Waarden hebben types, types hebben \textbf{kinds}:
+\begin{lstlisting}
+ghci> :kind Int
+Int :: *                             -- een "gewoon" type
+ghci> :kind Maybe
+Maybe :: * -> *                      -- geef een type, krijg een type
+ghci> :kind Either
+Either :: * -> * -> *
+\end{lstlisting}
+  \hs{Maybe} op zich is geen type: er bestaan geen waarden van type \hs{Maybe}.
+  \hs{Maybe Int} wel.
+  \pause
+ 
+  \vspace{6pt}
+  Een typeclass kan over zulke \alert{typeconstructors} gaan:
+\begin{lstlisting}
+class Functor (f :: * -> *) where   -- f is Maybe, [], IO, ...
+  fmap :: (a -> b) -> f a -> f b
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Kleine quiz: kinds}
+  Wat is de kind van:
+\begin{lstlisting}
+[]              -- <@\ans{2}{* -> *}@>
+Maybe Int       -- <@\ans{2}{*}@>
+Either String   -- <@\ans{2}{* -> *}@>
+(,) Int         -- <@\ans{2}{* -> *}@>
+(->) Int        -- <@\ans{2}{* -> *}@>
+\end{lstlisting}
+  \pause
+  \pause
+  Typeconstructors kan je dus ook \alert{partieel toepassen}, net als functies.
+  \hs{Either String}, \hs{(,) Int} en \hs{(->) Int} kunnen daardoor
+  instanties van \hs{Functor} zijn.
+\end{frame}
+
+\begin{frame}[fragile]{Documentatie vinden}
+  \begin{itemize}
+    \item \textbf{Hoogle}: zoek op naam \alert{of op type}:
+      \href{https://hoogle.haskell.org}{\code{hoogle.haskell.org}}\\
+      {\small \hs{(a -> b) -> [a] -> [b]} vindt \hs{map} en \hs{fmap}}
+    \item \textbf{Hackage}: de documentatie van \code{base}, met per klasse
+      de \alert{wetten} en de minimale definitie:
+      \href{https://hackage.haskell.org/package/base}{\code{hackage.haskell.org/package/base}}
+    \item \textbf{GHCi}: \hs{:type}, \hs{:kind} en \hs{:info}
+  \end{itemize}
+\begin{lstlisting}
+ghci> :info Functor
+type Functor :: (* -> *) -> Constraint
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+  (<$) :: a -> f b -> f a
+  {-# MINIMAL fmap #-}
+instance Functor Maybe
+instance Functor []
+...
+\end{lstlisting}
+\end{frame}
+
+
+
+\section{Semigroepen en monoïden}
+
+\begin{frame}{Combineren}
+  We combineren constant waarden: $3 + 4$, \code{"ab" ++ "cd"},
+  \code{max 3 7}, foutmeldingen samenvoegen, \dots
+  \pause
+  \begin{block}{Definitie}
+    Een \textbf{semigroep} $(S, \cdot)$ is een verzameling $S$ met een binaire
+    operatie $\cdot : S \times S \to S$ die \alert{associatief} is:
+    \[ \forall x, y, z \in S : (x \cdot y) \cdot z = x \cdot (y \cdot z) \]
+    Een \textbf{monoïde} $(M, \cdot, e)$ is een semigroep met een
+    \alert{neutraal element} $e \in M$:
+    \[ \forall x \in M : e \cdot x = x = x \cdot e \]
+  \end{block}
+  \pause
+  Voorbeelden: $(\mathbb{N}, +, 0)$, \ $(\mathbb{Z}, \times, 1)$, \
+  (strings, concatenatie, $\varepsilon$).\\
+  Geen voorbeeld: $(\mathbb{Z}, -)$, want $(5 - 3) - 1 = 1 \neq 3 = 5 - (3 - 1)$.
+\end{frame}
+ 
+\begin{frame}[fragile]{Semigroup en Monoid in Haskell}
+\begin{lstlisting}
+class Semigroup a where
+  (<>) :: a -> a -> a
+  -- wet: (x <> y) <> z == x <> (y <> z)
+ 
+class Semigroup a => Monoid a where
+  mempty :: a
+  -- wetten: mempty <> x == x
+  --         x <> mempty == x
+\end{lstlisting}
+  \pause
+  \begin{columns}[T]
+    \column{.4\textwidth}
+\begin{lstlisting}
+instance Semigroup [a] where
+  (<>) = (++)
+ 
+instance Monoid [a] where
+  mempty = []
+\end{lstlisting}
+    \column{.55\textwidth}
+    Gratis erbij:
+\begin{lstlisting}
+mconcat :: Monoid a => [a] -> a
+mconcat ["ab", "c", "de"]  == "abcde"
+mconcat []                 == ""
+\end{lstlisting}
+  \end{columns}
+\end{frame}
+ 
+\begin{frame}{Voorbeelden}
+  \centering
+  \begin{tabular}{lllll}
+    \toprule
+    \textbf{Type} & \textbf{\code{<>}} & \textbf{\code{mempty}} & \textbf{Klasse} \\
+    \midrule
+    \code{[a]}         & \code{++}            & \code{[]}    & Monoid \\
+    \code{Sum Int}     & \code{+}             & \code{0}     & Monoid \\
+    \code{Product Int} & \code{*}             & \code{1}     & Monoid \\
+    \code{All}         & \code{\&\&}          & \code{True}  & Monoid \\
+    \code{Any}         & \code{||}            & \code{False} & Monoid \\
+    \code{Max a}       & \code{max}           & \code{minBound}, enkel als \code{Bounded a} & Semigroup (Monoid) \\
+    \code{NonEmpty a}  & \code{++}            & --- (een lege lijst is niet toegelaten!) & Semigroup \\
+    \code{Int} met \code{-} & --- & --- & geen van beide \\
+    \bottomrule
+  \end{tabular}
+ 
+  \vspace{10pt}
+  Bestaat er wel een \alert{zinnig} neutraal element?
+\end{frame}
+ 
+\begin{frame}{Kleine quiz: semigroep, monoïde of geen van beide?}
+  \begin{enumerate}
+    \item \code{Double} met het gemiddelde \code{\textbackslash x y -> (x + y) / 2}
+      \only<2->{\\ \alert{geen van beide}: $\text{gem}(\text{gem}(0, 0), 4) = 2$, maar $\text{gem}(0, \text{gem}(0, 4)) = 1$}
+    \item \code{Bool} met \code{xor}
+      \only<3->{\\ \alert{monoïde}: associatief, met neutraal element \code{False}}
+    \item \code{Maybe a} met ``neem de eerste \code{Just}''
+      \only<4->{\\ \alert{monoïde}, met neutraal element \code{Nothing} (dit is \code{First a})}
+    \item functies \code{a -> a} met compositie \code{(.)}
+      \only<5->{\\ \alert{monoïde}: \code{(.)} is associatief en \code{id} is neutraal.}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Eén type, meerdere monoïden}
+  \hs{Int} heeft twee voor de hand liggende monoïden: $(+, 0)$ en $(\times, 1)$.
+  Welke instantie kies je?
+\begin{lstlisting}
+newtype Sum a = Sum { getSum :: a }          -- uit Data.Monoid
+ 
+instance Num a => Semigroup (Sum a) where
+  Sum x <> Sum y = Sum (x + y)
+instance Num a => Monoid (Sum a) where
+  mempty = Sum 0
+\end{lstlisting}
+  \pause
+\begin{lstlisting}
+getSum     (mconcat (map Sum     [1 .. 4]))   == 10
+getProduct (mconcat (map Product [1 .. 4]))   == 24
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Bestaat er wel een neutraal element?}
+  Niet elke operatie heeft een neutraal element. \hs{max} heeft er geen voor elk type:
+\begin{lstlisting}
+ghci> maximum []
+*** Exception: Prelude.maximum: empty list
+\end{lstlisting}
+  \pause
+  Combineer je enkel als er \alert{minstens één} element is? Dan volstaat een semigroep:
+\begin{lstlisting}
+sconcat :: Semigroup a => NonEmpty a -> a
+\end{lstlisting}
+  \pause
+  \begin{alertblock}{Vuistregel}
+    Begin met \code{Semigroup}. Voeg \code{mempty} enkel toe als er in je domein
+    een betekenisvolle ``doe niets''-waarde bestaat.
+  \end{alertblock}
+\end{frame}
+
+\section{Functoren}
+
+\begin{frame}[fragile]{Functor: de wiskunde}
+  \begin{columns}[c]
+    \column{.6\textwidth}
+    \begin{block}{Definitie}
+      Een \textbf{functor} $F : \mathcal{C} \to \mathcal{D}$ beeldt
+      \begin{itemize}
+        \item elk object $A$ af op een object $F\,A$
+        \item elk morfisme $f : A \to B$ af op $F\,f : F\,A \to F\,B$
+      \end{itemize}
+      zodat de structuur bewaard blijft:
+      \[
+        F\,\mathrm{id}_A = \mathrm{id}_{F A}
+        \qquad
+        F\,(g \circ f) = F\,g \circ F\,f
+      \]
+    \end{block}
+    Een \textbf{endofunctor} gaat van een categorie naar zichzelf:
+    \alert{Hask $\to$ Hask}.
+    \column{.38\textwidth}
+    \centering
+    \begin{tikzcd}[row sep=huge, column sep=large]
+      A \arrow[r, "f"] \arrow[d, mapsto, dashed, "F"']
+        & B \arrow[d, mapsto, dashed, "F"] \\
+      F\,A \arrow[r, "F\,f"']
+        & F\,B
+    \end{tikzcd}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Functor in Haskell}
+  Een endofunctor op Hask bestaat uit twee delen:
+  \begin{itemize}
+    \item op objecten: een \alert{typeconstructor} \hs{f :: * -> *} \hfill \hs{Int} $\mapsto$ \hs{Maybe Int}
+    \item op morfismen: \alert{\hs{fmap}} \hfill \hs{a -> b} $\mapsto$ \hs{f a -> f b}
+  \end{itemize}
+\begin{lstlisting}
+class Functor f where
+  fmap :: (a -> b) -> (f a -> f b)       -- "til een functie op"
+-- wetten (= de definitie van een functor!)
+fmap id      == id
+fmap (g . h) == fmap g . fmap h
+\end{lstlisting}
+  \pause
+  \hs{fmap} verandert de \alert{waarden}, nooit de \alert{structuur}.
+  Twee keer mappen = één keer mappen met de samenstelling.\\[4pt]
+  \hs{(<$>)} is \hs{fmap} als infix-operator: \hs{f <$> x == fmap f x}
+\end{frame}
+ 
+\begin{frame}[fragile]{Functor-instanties}
+  \begin{columns}[T]
+    \column{.5\textwidth}
+\begin{lstlisting}
+instance Functor Maybe where
+  fmap _ Nothing  = Nothing
+  fmap f (Just x) = Just (f x)
+ 
+instance Functor [] where
+  fmap = map
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+data Tree a = Leaf a
+            | Node (Tree a) (Tree a)
+ 
+instance Functor Tree where
+  fmap f (Leaf x)   = Leaf (f x)
+  fmap f (Node l r) =
+    Node (fmap f l) (fmap f r)
+\end{lstlisting}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+fmap (+ 1) (Just 5)                == Just 6
+fmap (+ 1) Nothing                 == Nothing
+length <$> ["Hello", "World", "!"] == [5, 5, 1]
+show <$> Node (Leaf 1) (Leaf 2)    == Node (Leaf "1") (Leaf "2")
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Kleine quiz: functoren}
+  Wat is het resultaat?
+\begin{lstlisting}
+fmap (+ 1) (Right 3)       -- <@\ans{2}{Right 4}@>
+fmap (+ 1) (Left "fout")   -- <@\ans{2}{Left "fout"}@>
+fmap (+ 1) (3, 4)          -- <@\ans{3}{(3, 5)}@>
+fmap (* 2) (+ 1) 3         -- <@\ans{4}{8}@>
+\end{lstlisting}
+  \only<2>{\hs{Either e} is een functor in het \alert{laatste} argument}
+  \only<3>{\hs{(,) a} heeft kind \hs{* -> *}: het eerste element hoort bij de \alert{structuur}, enkel het tweede wordt gemapt.}
+  \only<4>{\hs{(->) r} is ook een functor: \hs{fmap} voor functies is \alert{compositie}.
+    \hs{fmap (* 2) (+ 1) == (* 2) . (+ 1)}}
+\end{frame}
+ 
+\begin{frame}[fragile]{Kleine quiz: is dit een geldige functor?}
+  \begin{columns}[T]
+    \column{.48\textwidth}
+\begin{lstlisting}
+instance Functor [] where
+  fmap f xs = reverse (map f xs)
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+data Counted a = Counted Int a
+ 
+instance Functor Counted where
+  fmap f (Counted n x) =
+    Counted (n + 1) (f x)
+\end{lstlisting}
+  \end{columns}
+  \pause
+  Beide \alert{typechecken}, maar geen van beide is een functor:
+\begin{lstlisting}
+fmap id [1, 2, 3]        == [3, 2, 1]        -- /= id [1, 2, 3]
+fmap id (Counted 0 'x')  == Counted 1 'x'    -- /= id (Counted 0 'x')
+\end{lstlisting}
+  \pause
+  Beide veranderen de \alert{structuur} en dus schenden de wetten van een functor!
+\end{frame}
+
+\section{Applicatives}
+
+\begin{frame}[fragile]{De grens van Functor}
+  Wat als je een functie met \alert{twee} argumenten hebt?
+\begin{lstlisting}
+ghci> :type fmap (+) (Just 3)
+fmap (+) (Just 3) :: Maybe (Int -> Int)
+\end{lstlisting}
+  Nu zit er een \alert{functie} in een context, en die wil je toepassen op \hs{Just 4}
+  \pause
+\begin{lstlisting}
+class Functor f => Applicative f where
+  pure  :: a -> f a                     -- waarde in minimale context
+  (<*>) :: f (a -> b) -> f a -> f b     -- ingepakte functie toepassen
+\end{lstlisting}
+  \pause
+\begin{lstlisting}
+(+)                        :: Int -> Int -> Int
+(+) <$> Just 3             :: Maybe (Int -> Int)
+(+) <$> Just 3 <*> Just 4  :: Maybe Int           -- Just 7
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Applicative-instanties}
+  \begin{columns}[T]
+    \column{.48\textwidth}
+\begin{lstlisting}
+instance Applicative Maybe where
+  pure = Just
+  Just f <*> Just x = Just (f x)
+  _      <*> _      = Nothing
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+instance Applicative [] where
+  pure x    = [x]
+  fs <*> xs = [f x | f <- fs, x <- xs]
+\end{lstlisting}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+(+) <$> Just 3 <*> Just 4         == Just 7
+(+) <$> Just 3 <*> Nothing        == Nothing
+(+) <$> [1, 2] <*> [10, 20]       == [11, 21, 12, 22]
+(,) <$> [1, 2] <*> "ab"           == [(1,'a'), (1,'b'), (2,'a'), (2,'b')]
+\end{lstlisting}
+  \pause
+  \begin{itemize}
+    \item \hs{Maybe}: één \hs{Nothing} en het geheel faalt
+    \item lijsten = \alert{cartesisch product}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Applicative wetten}
+\begin{lstlisting}
+pure id <*> v              == v                  -- identiteit
+pure f <*> pure x          == pure (f x)         -- homomorfisme
+u <*> pure y               == prue ($ y) <*> u   -- interchange
+pure (.) <*> u <*> v <*> w == u <*> (v <*> w)    -- compositie
+\end{lstlisting}
+en consistent met \hs|Functor| \hs|fmap f x == pure f <*> x|
+\pause 
+\begin {itemize}
+\item \hs|pure| voegt \alert{geen effecten} toe (neutrale element)
+\item effecten combineren \alert{associatief}
+\end {itemize}
+Klinkt bekend?
+\pause 
+Een Applicative is een monoïde over contexten (effecten, ...)
+\end{frame}
+
+\begin{frame}[fragile]{Handige Applicative-functies}
+\begin{lstlisting}[morekeywords={[3]{replicateM,when}}]
+liftA2     :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
+replicateM :: Applicative f => Int -> f a -> f [a]      -- Control.Monad
+when       :: Applicative f => Bool -> f () -> f ()     -- Control.Monad
+liftA2 g x y = g <$> x <*> y
+when b act   = if b then act else pure ()
+\end{lstlisting}
+  \pause
+\begin{lstlisting}[morekeywords={[3]{replicateM,when}}]
+liftA2 (+) (Just 3) (Just 4)     == Just 7
+liftA2 (,) [1, 2] "ab"           == [(1,'a'), (1,'b'), (2,'a'), (2,'b')]
+replicateM 2 "ab"                == ["aa", "ab", "ba", "bb"]
+replicateM 3 getLine             -- lees 3 regels: IO [String]
+when verbose (putStrLn "klaar")  -- niet verbose? dan pure ()
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Applicatives zijn statisch}
+\begin{lstlisting}
+User <$> validateName n <*> validateAge a
+\end{lstlisting}
+\begin{itemize}
+\item de effecten zijn \alert{onafhankelkijk}, \hs|validateAge| weet niets over het resultaat van \hs|validateName|
+\item de vorm van de berkeneing ligt vast \alert{voor} er iets uitegevoerd wordt
+\end{itemize}
+\pause 
+Dus je kan hier mee alle effecten uitvoeren (Monad kan eerder stoppen) en deze mogen in \alert{parallel} lopen.
+\pause 
+Maar je kan \alert{niet} zeggen "als eerste resultaat > 0", doen dan dit.
+\end{frame}
+
+\section{Foldable}
+
+\begin{frame}[fragile]{Foldable: een structuur samenvatten}
+  \hs{Foldable} vat alle waarden van een structuur samen tot één resultaat
+  \pause
+\begin{lstlisting}
+class Foldable t where
+  foldMap :: Monoid m => (a -> m) -> t a -> m
+  foldr   :: (a -> b -> b) -> b -> t a -> b
+  {-# MINIMAL foldMap | foldr #-}
+\end{lstlisting}
+  \pause
+  \hs{foldMap f}: zet elk element om naar een \alert{monoïde} en combineer deze met \hs{<>}.
+  \begin{itemize}
+    \item \hs{<>} combineert de elementen, \hs{mempty} is de fallback voor een lege structuur
+    \item hoe je groepeert maakt niet uit. Het resultaat is altijd hetzelfde want \hs{<>} is associatief
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{foldMap} in actie}
+\begin{lstlisting}
+foldMap Sum            [1, 2, 3, 4]   == Sum 10
+foldMap Product        [1, 2, 3, 4]   == Product 24
+foldMap (Any . even)   [1, 3, 4]      == Any True
+foldMap (\x -> [x, x]) [1, 2]         == [1, 1, 2, 2]
+foldMap Sum            []             == Sum 0          -- mempty
+\end{lstlisting}
+  \pause
+  De monoïde bepaalt wat er berekend wordt:
+\begin{lstlisting}
+sum    = getSum . foldMap Sum
+length = getSum . foldMap (const (Sum 1))
+elem x = getAny . foldMap (\y -> Any (x == y))
+toList = foldMap (\x -> [x])
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Een Foldable-instantie schrijven}
+  \begin{columns}[T]
+    \column{.5\textwidth}
+\begin{lstlisting}
+data Tree a = Leaf a
+            | Node (Tree a) (Tree a)
+
+instance Foldable Tree where
+  foldMap f (Leaf x)   = f x
+  foldMap f (Node l r) =
+    foldMap f l <> foldMap f r
+\end{lstlisting}
+    \column{.46\textwidth}
+    Je kiest \alert{waar} de elementen zitten en in welke structuur,
+    maar hoe ze gecombineerd worden kiest de gebruiker via zijn \alert{monoïde}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+t = Node (Leaf 1) (Node (Leaf 2) (Leaf 3))
+sum t  == 6        length t  == 3        maximum t == 3
+elem 2 t == True   toList t  == [1, 2, 3]
+\end{lstlisting}
+  Gratis erbij: \hs{sum}, \hs{product}, \hs{length}, \hs{elem}, \hs{maximum},
+  \hs{null}, \hs{toList}, \hs{foldr}, \dots
+\end{frame}
+
+\begin{frame}[fragile]{Kleine quiz: Foldable}
+  Wat is het resultaat?
+\begin{lstlisting}
+length (Just 'x')      -- <@\ans{2}{1}@>
+sum Nothing            -- <@\ans{2}{0}@>
+length (3, 4)          -- <@\ans{3}{1}@>
+elem 3 (3, 4)          -- <@\ans{3}{False}@>
+null (Left "fout")     -- <@\ans{3}{True}@>
+\end{lstlisting}
+  \only<2>{\hs{Maybe} is een container met \alert{0 of 1} elementen.}
+  \only<3>{cf. \hs{Functor}: \hs{(,) a} en \hs{Either e} hebben kind \hs{* -> *}.
+    \\Het laatste typeargument is de inhoud.}
+\end{frame}
+
+\section{Traversable}
+
+\begin{frame}[fragile]{Het probleem}
+  Een functie die kan \alert{falen} (of ander effect), toegepast op elk element:
+\begin{lstlisting}
+import Text.Read (readMaybe)    -- readMaybe :: Read a => String -> Maybe a
+
+fmap readMaybe ["1", "2", "3"]  == [Just 1, Just 2, Just 3]  -- [Maybe Int]
+\end{lstlisting}
+  \pause
+  We willen ``\alert{alles} is gelukt, of het geheel faalt'': \hs{Maybe [Int]}.\\
+  We willen dus de effecten van in de structuur naar buiten krijgen.
+  \pause
+\begin{lstlisting}
+fmap     :: (a -> f b) -> t a -> t (f b)    -- effecten zitten binnenin
+traverse :: (a -> f b) -> t a -> f (t b)    -- effecten naar buiten
+
+traverse readMaybe ["1", "2", "3"]  == Just [1, 2, 3]
+traverse readMaybe ["1", "x", "3"]  == Nothing
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Traversable}
+\begin{lstlisting}
+class (Functor t, Foldable t) => Traversable t where
+  traverse  :: Applicative f => (a -> f b) -> t a -> f (t b)
+  sequenceA :: Applicative f => t (f a) -> f (t a)
+  {-# MINIMAL traverse | sequenceA #-}
+
+traverse f = sequenceA . fmap f
+sequenceA  = traverse id
+\end{lstlisting}
+  \pause
+  Idee: \hs{fmap} met effecten. Doorloop de structuur, doe bij elk element een effect, behoud de structuur en combineer alle effecten tot één.
+  \pause
+
+  \vspace{4pt}
+  \hs{sequenceA} brengt uw effect naar buiten en behoudt de structuur:
+\begin{lstlisting}
+sequenceA [Just 1, Just 2]    == Just [1, 2]
+sequenceA [Just 1, Nothing]   == Nothing
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Een Traversable-instantie schrijven}
+  \begin{columns}[T]
+    \column{.44\textwidth}
+\begin{lstlisting}
+instance Traversable [] where
+  traverse f []       = pure []
+  traverse f (x : xs) =
+    (:) <$> f x <*> traverse f xs
+\end{lstlisting}
+    \column{.54\textwidth}
+\begin{lstlisting}
+instance Traversable Tree where
+  traverse f (Leaf x)   = Leaf <$> f x
+  traverse f (Node l r) =
+    Node <$> traverse f l <*> traverse f r
+\end{lstlisting}
+  \end{columns}
+  \pause
+  Elke constructor \hs{C} wordt \hs{C <$> ... <*> ...}
+  \begin{itemize}
+    \item de constructor bouwt de structuur opnieuw op
+    \item \hs{<*>} combineert de effecten
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Stap voor stap}
+\begin{lstlisting}
+safeHalve :: Int -> Maybe Int
+safeHalve x = if even x then Just (x `div` 2) else Nothing
+\end{lstlisting}
+  \pause
+  Uitgeschreven:
+\begin{lstlisting}
+traverse safeHalve [2, 4, 6]
+  = (:) <$> Just 1 <*> ((:) <$> Just 2 <*> ((:) <$> Just 3 <*> pure []))
+\end{lstlisting}
+  \pause
+  Combineer van binnen naar buiten (\hs{(:) <$> Just x == Just (x :)}):
+\begin{lstlisting}
+Just (3 :) <*> Just []         == Just [3]
+Just (2 :) <*> Just [3]        == Just [2, 3]
+Just (1 :) <*> Just [2, 3]     == Just [1, 2, 3]
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Wat als één stap faalt?}
+\begin{lstlisting}
+traverse safeHalve [2, 3, 6]
+  = (:) <$> Just 1 <*> ((:) <$> Nothing <*> ((:) <$> Just 3 <*> pure []))
+\end{lstlisting}
+  \pause
+\begin{lstlisting}
+Just (3 :)  <*> Just []        == Just [3]
+Nothing     <*> Just [3]       == Nothing
+Just (1 :)  <*> Nothing        == Nothing
+\end{lstlisting}
+  \pause
+  Eén \hs{Nothing} verspreidt zich naar buiten via elke \hs{<*>}.\\
+  Je krijgt dit volledig gratis uit \hs{<*>} van (in dit geval) \hs{Maybe}.
+\end{frame}
+
+\begin{frame}[fragile]{Zelfde \texttt{traverse}, andere \texttt{<*>}}
+\begin{lstlisting}
+-- Either e: de eerste fout wint
+check x = if x > 0 then Right x else Left ("fout: " ++ show x)
+traverse check [1, 2, 3]         == Right [1, 2, 3]
+traverse check [1, -2, -3]       == Left "fout: -2"
+
+-- lijsten: alle combinaties
+traverse (\x -> [x, -x]) [1, 2]  == [[1, 2], [1, -2], [-1, 2], [-1, -2]]
+
+-- IO: voer de acties in volgorde uit
+traverse print [1, 2, 3]         -- print 1, 2, 3 en geeft [(), (), ()]
+\end{lstlisting}
+
+  \pause
+
+  {\small Reulstaat niet nodig? \hs{traverse_} / \hs{mapM_}
+  vragen enkel \hs{Foldable} (resultaat wordt \hs{()}))}
+\end{frame}
+
+\begin{frame}[fragile]{Kleine quiz: Traversable}
+  Wat is het resultaat?
+\begin{lstlisting}
+sequenceA [Just 1, Just 2]               -- <@\ans{2}{Just [1, 2]}@>
+sequenceA [Just 1, Nothing]              -- <@\ans{2}{Nothing}@>
+sequenceA [[1, 2], [3, 4]]               -- <@\ans{3}{[[1, 3], [1, 4], [2, 3], [2, 4]]}@>
+sequenceA ([] :: [Maybe Int])               -- <@\ans{4}{Just []}@>
+traverse readMaybe ("leeftijd", "21")       -- <@\ans{5}{Just ("leeftijd", 21)}@>
+traverse safeHalve (Node (Leaf 2) (Leaf 5)) -- <@\ans{5}{Nothing}@>
+\end{lstlisting}
+  \only<3>{Lijst-Applicative = \alert{cartesisch product}: elke keuze met elke keuze.}
+  \only<4>{Lege structuur: geen effecten om te combineren, enkel \hs{pure []}.}
+\end{frame}
+
+\begin{frame}[fragile]{Traversable is sterker dan Functor en Foldable}
+  Met de juiste Applicative krijg je \hs{fmap} en \hs{foldMap} terug:
+\begin{lstlisting}
+newtype Identity a = Identity { runIdentity :: a }  -- effect dat niets doet
+newtype Const m a  = Const { getConst :: m }        -- verzamelt enkel een m
+
+instance Monoid m => Applicative (Const m) where
+  pure _              = Const mempty
+  Const x <*> Const y = Const (x <> y)
+\end{lstlisting}
+  \pause
+\begin{lstlisting}
+fmap    f = runIdentity . traverse (Identity . f)   -- geen effect
+foldMap f = getConst    . traverse (Const . f)      -- enkel effect
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}{Samenvatting}
+  \centering
+  \begin{tabular}{lllll}
+    \toprule
+    \textbf{Klasse} & \textbf{Functie} & \textbf{Waarden} & \textbf{Vorm} & \textbf{Gebruikt} \\
+    \midrule
+    \code{Functor}     & \code{fmap}     & veranderd                 & behouden & --- \\
+    \code{Foldable}    & \code{foldMap}  & samengevat                & weg      & \code{Monoid} \\
+    \code{Traversable} & \code{traverse} & veranderd, \alert{met effect} & behouden & \code{Applicative} \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{12pt}
+  \begin{itemize}
+    \item \textbf{Functor}: verander elke waarde, behoud de vorm
+    \item \textbf{Foldable}: plet alle waarden tot één, verlies de vorm
+    \item \textbf{Traversable}: verander elke waarde \alert{met een effect}, behoud de vorm
+      en combineer de effecten tot één
+  \end{itemize}
+\end{frame}
+
+\section{Monad}
+
+\begin{frame}[fragile]{Het probleem}
+\begin{lstlisting}
+safeHalve :: Int -> Maybe Int
+safeHalve x
+  | even x    = Just (x `div` 2)
+  | otherwise = Nothing
+\end{lstlisting}
+
+Hoe twee keer halveren?
+\pause
+\begin{lstlisting}
+fmap safeHalve (Just 8)                    :: Maybe (Maybe Int)
+fmap (fmap safeHalve) (fmap safeHalve ...) :: Maybe (Maybe (Maybe Int))
+\end{lstlisting}
+\pause 
+\begin{itemize}
+\item \hs|fmap| met een functie \hs|a -> m b| geeft \alert{geneste} contexten
+\item \hs|<*>| helpt niet, of de tweede stap faalt hangt af van het \alert{resultaat} van de eerste
+\end{itemize}
+We willen een functie \hs|join :: Maybe (Maybe a) -> Maybe a|
+\end{frame}
+
+\begin{frame}[fragile]{Monad}
+\begin{lstlisting}
+class Applicative m => Monad m where
+  (>>=)  :: m a -> (a -> m b) -> m b      -- "bind"
+  return :: a -> m a                      -- = pure
+
+join :: Monad m => m (m a) -> m a
+join mma = mma >>= id
+m >>= f = join (fmap f m)
+\end{lstlisting}
+\pause 
+\begin{lstlisting}
+Just 8 >>= safeHalve >>= safeHalve    == Just 2
+Just 6 >>= safeHalve >>= safeHalve    == Nothing
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Naast elkaar}
+\begin{lstlisting}
+(<$>) :: Functor f       =>   (a ->   b) -> f a -> f b
+(<*>) :: Applicative f   => f (a ->   b) -> f a -> f b
+(=<<) :: Monad f         =>   (a -> f b) -> f a -> f b
+\end{lstlisting}
+(\hs|=<<| is \hs|>>=| met de argumentne omgedraaid)
+\pause
+\begin{itemize}
+\item \textbf{Functor}: een gewone functie, de context blijft wat ze is
+\item \textbf{Applicative}: functie zit in de context, contexten worden \alert{gecombineerd}
+\item \textbf{Monad}: de functie \alert{maakt} een nieuwe context, obv de waarde
+\end{itemize}
+Elke monad is een applicative, elke applicative is een functor, maar niet omgekeerd
+\end{frame}
+
+\begin{frame}[fragile]{Monad-instanties}
+  \begin{columns}[T]
+    \column{.48\textwidth}
+\begin{lstlisting}
+instance Monad Maybe where
+  Nothing >>= _ = Nothing
+  Just x  >>= f = f x
+\end{lstlisting}
+\begin{lstlisting}
+join (Just (Just 4)) == Just 4
+join (Just Nothing)  == Nothing
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+instance Monad [] where
+  xs >>= f = concatMap f xs
+\end{lstlisting}
+\begin{lstlisting}
+join [[1, 2], [], [3]] == [1, 2, 3]
+\end{lstlisting}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+[1, 2, 3] >>= \x -> [x, -x]   == [1, -1, 2, -2, 3, -3]
+\end{lstlisting}
+  \pause
+  \begin{itemize}
+    \item \hs{Maybe}stop bij de eerste \hs{Nothing} (\alert{early exit})
+    \item lijsten proberen alle mogelijkheden (\alert{non-determinisme})
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{do-notatie}
+  \hs{do} is syntactic sugar voor \hs{>>=}:
+  \begin{columns}[T]
+    \column{.48\textwidth}
+\begin{lstlisting}
+do x <- m
+   y <- k x
+   return (x, y)
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+m   >>= \x ->
+k x >>= \y ->
+return (x, y)
+\end{lstlisting}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+data User    = User    { address :: Maybe Address }
+data Address = Address { city    :: Maybe String }
+ 
+getCity :: User -> Maybe String
+getCity user = do addr <- address user     -- Nothing? dan stopt het hier
+                  city addr
+\end{lstlisting}
+  \pause
+  Let op: \hs{return} stopt de functie \alert{niet}! Het steekt enkel een waarde in de context.
+\end{frame}
+
+\begin{frame}[fragile]{Monad wetten}
+\begin{lstlisting}
+return a >>= f     == f a                     -- linker-identiteit
+m >>= return       == m                       -- rechter-idnetiteit
+(m >>= f) >>= g    == m >>= (\x -> f x >>= g) -- associativiteit
+\end{lstlisting}
+\pause 
+\alert{Kleisli-compositie} stelt functies \hs|a -> m b| samen
+\begin{lstlisting}
+import Control.Monad ((>=>))
+(>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
+(f >=> g) x = f x >>= g
+\end{lstlisting}
+\begin{lstlisting}
+return >=> f       == f
+f >=> return       == f
+(f >=> g) >=> h    == f >=> (g >=> h)
+\end{lstlisting}
+associatief met een neutraal element (\alert{monoidewetten})
+\end{frame}
+
+\begin{frame}[plain]
+  \makebox[\linewidth]{%
+    \includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{cz76ci98ct0d1.png}%
+  }
+\end{frame}
+
+\begin{frame}{Een monade is een monoide over de categorie van de C-endofunctoren}
+\begin{itemize}
+    \item \textbf{De categorie}: objecten zijn \alert{endofunctoren} (\code{Maybe}, \code{[]}, \code{IO}, \dots),
+      morfismen zijn \alert{natuurlijke transformaties} \code{forall a. f a -> g a}\\
+      {\small bv.\ \code{maybeToList :: Maybe a -> [a]}: werkt voor elke \code{a}, kijkt niet naar de inhoud}
+    \pause
+    \item \textbf{``Vermenigvuldigen''} van objecten: functoren \alert{samenstellen}
+      ($m \circ m$ geeft \code{m (m a)}), met als eenheid de identiteitsfunctor $\mathrm{Id}$
+    \pause
+    \item \textbf{Een monoïde} in die categorie: een object $m$ met
+  \end{itemize}
+  \pause
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    & \textbf{Monoïde} $(\mathbb{Z}, +, 0)$ & \textbf{Monad} $m$ \\
+    \midrule
+    element      & een getal & een functor \code{m} \\
+    combineren   & $+ : \mathbb{Z} \times \mathbb{Z} \to \mathbb{Z}$ & $\mu$ = \code{join :: m (m a) -> m a} \\
+    neutraal     & $0$ & $\eta$ = \code{return :: a -> m a} \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}[fragile]{De monade wetten zijn monoidewetten}
+\begin{columns}[c]
+    \column{.5\textwidth}
+    \centering
+    \textbf{Associativiteit}\\[4pt]
+    \begin{tikzcd}[column sep=large, row sep=large]
+      \texttt{m (m (m a))} \arrow[r, "\texttt{fmap join}"] \arrow[d, "\texttt{join}"']
+        & \texttt{m (m a)} \arrow[d, "\texttt{join}"] \\
+      \texttt{m (m a)} \arrow[r, "\texttt{join}"']
+        & \texttt{m a}
+    \end{tikzcd}\\[4pt]
+    {\small $(a + b) + c = a + (b + c)$}
+    \column{.5\textwidth}
+    \centering
+    \textbf{Identiteit}\\[4pt]
+    \begin{tikzcd}[column sep=large, row sep=large]
+      \texttt{m a} \arrow[r, "\texttt{return}"] \arrow[dr, equal]
+        & \texttt{m (m a)} \arrow[d, "\texttt{join}"]
+        & \texttt{m a} \arrow[l, "\texttt{fmap return}"'] \arrow[dl, equal] \\
+      & \texttt{m a} &
+    \end{tikzcd}\\[4pt]
+    {\small $0 + a = a = a + 0$}
+  \end{columns}
+  Een monade is een manier om effecten monoïdisch samen te stellen.
+\end{frame}
+
+\begin{frame}{Kleine quiz: wat heb je minimaal nodig?}
+  Functor, Applicative of Monad?
+  \begin{enumerate}
+    \item alle prijzen in een \code{Maybe [Double]} met 21\% btw verhogen
+      \only<2->{\hfill \alert{Functor}}
+    \item een \code{User} bouwen uit drie onafhankelijk gevalideerde velden
+      \only<3->{\hfill \alert{Applicative}}
+    \item een lijst van URL's downloaden tot \code{IO [String]}
+      \only<4->{\hfill \alert{Applicative} (\code{traverse})}
+    \item een bestandsnaam inlezen en dan dat bestand openen
+      \only<5->{\hfill \alert{Monad}}
+    \item een parser die eerst een getal $n$ leest en dan $n$ tekens
+      \only<6->{\hfill \alert{Monad}}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Je gebruikt al monads}
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Taal} & \textbf{Context} & \textbf{\code{return}} & \textbf{\code{>>=}} \\
+    \midrule
+    JavaScript & \code{Promise}           & \code{Promise.resolve} & \code{.then} \\
+    Rust       & \code{Option}, \code{Result} & \code{Some}, \code{Ok} & \code{and\_then}, \code{?} \\
+    Java       & \code{Optional}          & \code{Optional.of}     & \code{flatMap} \\
+    C\#        & \code{IEnumerable}       & ---                    & \code{SelectMany} (LINQ) \\
+    Python     & lijsten                  & \code{[x]}             & list comprehensions \\
+    \bottomrule
+  \end{tabular}
+ 
+  \vspace{10pt}
+\end{frame}
+
+\begin{frame}[fragile]{Toestand zonder mutatie}
+  Zuivere functies kunnen niets aanpassen. Toestand moet je dus \alert{doorgeven}:
+\begin{lstlisting}
+-- nummer elk blad van een boom, van links naar rechts
+label :: Tree a -> Int -> (Tree (Int, a), Int)
+label (Leaf x)   n = (Leaf (n, x), n + 1)
+label (Node l r) n =
+  let (l', n1) = label l n
+      (r', n2) = label r n1       -- n1, niet n! makkelijk om fout te doen
+  in  (Node l' r', n2)
+\end{lstlisting}
+  \pause
+  Kijk naar het type: \hs{Int -> (Tree (Int, a), Int)} heeft de vorm \hs{s -> (a, s)}.
+  \pause
+\begin{lstlisting}
+newtype State s a = State { runState :: s -> (a, s) }
+-- krijgt een toestand s, geeft een resultaat a en een nieuwe toestand
+\end{lstlisting}
+\end{frame}
+ 
+\begin{frame}[fragile]{State is een monad}
+\begin{lstlisting}
+instance Monad (State s) where
+  m >>= f = State $ \s ->
+    let (a, s') = runState m s       -- voer m uit
+    in  runState (f a) s'            -- kies de volgende stap, geef s' door
+instance Applicative (State s) where
+  pure x = State $ \s -> (x, s)      -- toestand ongewijzigd
+  (<*>)  = ap                        -- ap en liftM: uit Control.Monad
+instance Functor (State s) where
+  fmap   = liftM
+\end{lstlisting}
+  \pause
+\begin{lstlisting}
+get      = State $ \s -> (s, s)      -- get    :: State s s
+put s    = State $ \_ -> ((), s)     -- put    :: s -> State s ()
+modify f = get >>= put . f           -- modify :: (s -> s) -> State s ()
+\end{lstlisting}
+\end{frame}
+ 
+\begin{frame}[fragile]{State in actie}
+  \begin{columns}[T]
+    \column{.4\textwidth}
+\begin{lstlisting}
+import Control.Monad.State
+ 
+fresh :: State Int Int
+fresh = do
+  n <- get
+  put (n + 1)
+  return n
+\end{lstlisting}
+    \column{.56\textwidth}
+\begin{lstlisting}
+label :: Tree a -> State Int (Tree (Int, a))
+label = traverse (\x -> do n <- fresh
+                           return (n, x))
+\end{lstlisting}
+  \end{columns}
+  \pause
+\begin{lstlisting}
+ghci> evalState (label (Node (Leaf 'a') (Node (Leaf 'b') (Leaf 'c')))) 0
+Node (Leaf (0,'a')) (Node (Leaf (1,'b')) (Leaf (2,'c')))
+\end{lstlisting}
+\end{frame}
+ 
+\begin{frame}[fragile]{State in actie: een deur}
+  \begin{columns}[T]
+    \column{.5\textwidth}
+\begin{lstlisting}
+data Door = Open | Closed
+  deriving Show
+ 
+step :: String -> State Door ()
+step "open"   = put Open
+step "close"  = put Closed
+step "toggle" = modify toggle
+  where toggle Open   = Closed
+        toggle Closed = Open
+step _        = return ()
+\end{lstlisting}
+    \column{.48\textwidth}
+\begin{lstlisting}
+ghci> runState (step "open") Closed
+((),Open)
+ghci> runState (step "toggle") Open
+((),Closed)
+\end{lstlisting}
+    \pause
+\begin{lstlisting}
+ghci> execState
+        (mapM_ step ["open", "toggle",
+                     "toggle"])
+        Closed
+Open
+\end{lstlisting}
+  \end{columns}
+  \pause
+  \vspace{4pt}
+  \hs{mapM} is \hs{traverse} (voor monads), \hs{mapM_} gooit de resultaten weg.
+\end{frame}
+
+\begin{frame}[fragile]{Samenvatting}
+  \centering
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Klasse} & \textbf{Kernoperatie} & \textbf{Wat je kan} \\
+    \midrule
+    \hs|Semigroup|   & \hs|(<>)|      & waarden associatief combineren \\
+    \hs|Monoid|      & \hs|mempty|    & \dots\ ook vanuit ``niets'' \\
+    \hs|Functor|     & \hs|fmap|      & een gewone functie in een context toepassen \\
+    \hs|Applicative| & \hs|pure|, \hs|(<*>)| & onafhankelijke effecten combineren \\
+    \hs|Monad|       & \hs|(>>=)|, \hs|join| & afhankelijke effecten na elkaar \\
+    \hs|Foldable|    & \hs|foldMap|   & een structuur samenvatten met een monoïde \\
+    \hs|Traversable| & \hs|traverse|  & effecten over een structuur, de vorm blijft \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{8pt}
+  \raggedright
+  \begin{alertblock}{Vuistregel}
+    Gebruik de \textbf{zwakste} abstractie die doet wat je nodig hebt:
+    kan het met \hs|fmap|? Doe dat. Volstaan \hs|pure| en \hs|<*>|? Stop daar.
+    Gebruik \hs|>>=| enkel als een stap afhangt van een vorig resultaat. 
+  \end{alertblock}
+\end{frame}
+ 
+\begin{frame}[standout]
+  Vragen?
+\end{frame}
+
+\section{Eindquiz}
+ 
+\begin{frame}{Eindquiz: wat gebruik je hier? (1/3)}
+  {\small Semigroup, Monoid, Functor, Applicative, Monad, Foldable of Traversable?}
+  \begin{enumerate}
+    \item elke \code{String} in een \code{Tree String} in hoofdletters zetten
+      \uncover<2->{\\ \alert{Functor}: \code{fmap (map toUpper)}. Enkel de waarden veranderen, de vorm blijft.}
+    \item foutmeldingen van verschillende checks samenvoegen; geen fouten is ook een geldig resultaat
+      \uncover<3->{\\ \alert{Monoid}: \code{[String]} met \code{++}, en \code{mempty = []} betekent ``geen fouten''.}
+    \item de hoogste temperatuur uit een \code{NonEmpty Double}
+      \uncover<4->{\\ \alert{Semigroup}: \code{Max}. Er is geen zinnig neutraal element voor \code{Double}, maar dat hoeft ook niet.}
+    \item nagaan of er ergens in een \code{Tree Int} een negatief getal zit
+      \uncover<5->{\\ \alert{Foldable}: \code{any (< 0)}, of \code{getAny . foldMap (Any . (< 0))}. De vorm doet er niet toe.}
+  \end{enumerate}
+\end{frame}
+ 
+\begin{frame}{Eindquiz: wat gebruik je hier? (2/3)}
+  \begin{enumerate}
+    \setcounter{enumi}{4}
+    \item alle combinaties maken van een maat (S, M, L) en een kleur (rood, blauw)
+      \uncover<2->{\\ \alert{Applicative} (lijsten): \code{(,) <\$> maten <*> kleuren}, het cartesisch product.}
+    \item elke regel van een bestand parsen naar een \code{Int}; één ongeldige regel en alles faalt
+      \uncover<3->{\\ \alert{Traversable}: \code{traverse readMaybe (lines s) :: Maybe [Int]}.}
+    \item een gebruiker opzoeken op id, dan zijn afdeling, dan de manager van die afdeling
+      (elke stap kan falen)
+      \uncover<4->{\\ \alert{Monad}: \code{zoekUser i >\kern0pt>= zoekAfdeling >\kern0pt>= zoekManager}.
+        Elke stap heeft het \alert{resultaat} van de vorige nodig.}
+    \item een reeks zetten uitvoeren op een spelbord, zonder mutatie
+      \uncover<5->{\\ \alert{State} (een Monad) + \code{mapM\_ zet zetten}.}
+  \end{enumerate}
+\end{frame}
+ 
+\begin{frame}{Eindquiz: wat gebruik je hier? (3/3)}
+  \begin{enumerate}
+    \setcounter{enumi}{8}
+    \item een lijst van transformaties \code{[a -> a]} samenvoegen tot één functie
+      \uncover<2->{\\ \alert{Monoid}: functies \code{a -> a} met \code{(.)} en \code{id}, dus \code{foldr (.) id fs}.}
+    \item vraag de naam; \alert{enkel} als die \code{"admin"} is, vraag ook een wachtwoord
+      \uncover<3->{\\ \alert{Monad}: welke vraag volgt, hangt af van het antwoord. Een Applicative ligt vast op voorhand.}
+    \item een formulier valideren en \alert{alle} fouten tonen, niet enkel de eerste
+      \uncover<4->{\\ \alert{Applicative} met een \code{Semigroup} voor de fouten. \code{Either} stopt bij de eerste fout,
+        en een Monad kan hier niet: \code{>\kern0pt>=} heeft het eerste resultaat nodig om verder te gaan.}
+    \item de diepte van een \code{Tree a} berekenen
+      \uncover<5->{\\ \alert{Geen van allen}: \code{Foldable} gooit de vorm weg (\code{length} telt bladeren, geen diepte).
+        Gewone recursie dus.}
+  \end{enumerate}
+\end{frame}
+
+\end{document}
